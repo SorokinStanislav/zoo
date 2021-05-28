@@ -31,6 +31,15 @@ abstract class AnimalSpecies implements EventHandler {
     }
 
     /**
+     * This constructor was created to work with databases
+     */
+    public AnimalSpecies(String name, int amount) {
+        this.name = name;
+        this.amount = amount;
+        currentState = AnimalState.CALM;
+    }
+
+    /**
      * Defines a behavior on "keeper visit" event
      */
     abstract public void keeperVisit();
@@ -39,6 +48,11 @@ abstract class AnimalSpecies implements EventHandler {
      * Defines a behavior on "feeding a species" event
      */
     abstract public void feeding();
+
+    /**
+     * Defines a behavior on "drinking a species" event
+     */
+    abstract public void drinking();
 
     /**
      * Defines a behavior on "night time" event
@@ -54,6 +68,11 @@ abstract class AnimalSpecies implements EventHandler {
      * Defines a behavior on "thunder strike" event
      */
     abstract public void thunder();
+
+    /**
+     * Defines a behavior on "rain" event
+     */
+    abstract public void rain();
 
     /**
      * Defines a behavior for updating current state, according to zoo info about type
@@ -80,6 +99,9 @@ abstract class AnimalSpecies implements EventHandler {
             case FEEDING:
                 feeding();
                 break;
+            case DRINKING:
+                drinking();
+                break;
             case NIGHT:
                 night();
                 break;
@@ -88,6 +110,9 @@ abstract class AnimalSpecies implements EventHandler {
                 break;
             case THUNDER:
                 thunder();
+                break;
+            case RAIN:
+                rain();
                 break;
             case UPDATE_STATE:
                 updateSpeciesState();

@@ -7,6 +7,16 @@ import lombok.Setter;
  */
 @Setter
 public class Carnivore extends AnimalSpecies {
+    /**
+     * This constructors was created to work with databases
+     */
+    public Carnivore(){
+
+    }
+
+    public Carnivore(String name, int amount){
+        super(name, amount);
+    }
 
     /**
      * Method for updating current species state, according to zoo information about carnivore type
@@ -37,6 +47,20 @@ public class Carnivore extends AnimalSpecies {
      */
     @Override
     public void feeding() {
+        currentState = AnimalState.CALM;
+        Zoo.setAllCarnivoreState(AnimalState.CALM);
+        printDescription();
+    }
+
+
+    /**
+     * * Method for "species drinking" event
+     * Changes state of species to CALM
+     * Changes zoo info about state of a herbivore type
+     * Prints species info
+     */
+    @Override
+    public void drinking() {
         currentState = AnimalState.CALM;
         Zoo.setAllCarnivoreState(AnimalState.CALM);
         printDescription();
@@ -94,6 +118,19 @@ public class Carnivore extends AnimalSpecies {
      */
     @Override
     public void thunder() {
+        setCurrentState(AnimalState.MAKE_NOISE);
+        Zoo.setAllCarnivoreState(AnimalState.MAKE_NOISE);
+        printDescription();
+    }
+
+    /**
+     * Method for "rain" event
+     * Changes state of species to MAKE_NOISE
+     * Changes zoo info about state of carnivore type to MAKE_NOISE
+     * Prints species info
+     */
+    @Override
+    public void rain() {
         setCurrentState(AnimalState.MAKE_NOISE);
         Zoo.setAllCarnivoreState(AnimalState.MAKE_NOISE);
         printDescription();

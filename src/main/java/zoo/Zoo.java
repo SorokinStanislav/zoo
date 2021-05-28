@@ -1,11 +1,16 @@
 package zoo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -43,12 +48,28 @@ public class Zoo {
         allHerbivoreState = AnimalState.CALM;
     }
 
+    public void addAnimals(String source, Formats format){
+        switch (format){
+            case JSON:
+                addAnimalsFromJson(source);
+                break;
+            case XML:
+                addAnimalsFromXml(source);
+                break;
+            case DATABASE:
+                addAnimalsFromDB(source);
+                break;
+            default:
+                throw new IllegalArgumentException("Incorrect parsing format");
+        }
+    }
+
     /**
      * Method for adding animals to the zoo from the specified JSON file
      *
      * @param jsonPath path to JSON file with animals info
      */
-    public void addAnimals(String jsonPath) {
+    private void addAnimalsFromJson(String jsonPath) {
         ObjectMapper mapper = new ObjectMapper();
         File animalsFile = new File(jsonPath);
         try {
@@ -62,13 +83,66 @@ public class Zoo {
     }
 
     /**
+     * Method for adding animals to the zoo from the specified XML file
+     *
+     * @param xmlPath path to XML file with animals info
+     */
+    private void addAnimalsFromXml(String xmlPath) {
+        XmlMapper mapper = new XmlMapper();
+        File animalsFile = new File(xmlPath);
+        try {
+            AnimalsDataFile animalsData = mapper.readValue(animalsFile, AnimalsDataFile.class);
+            zooAnimalSpecies.addAll(animalsData.getCarnivoreAnimals());
+            zooAnimalSpecies.addAll(animalsData.getHerbivoreAnimals());
+        } catch (IOException e) {
+            System.out.println(e.toString());
+            throw new IllegalStateException("File hasn't been parsed");
+        }
+    }
+
+    /**
+     * Method for adding animals to the zoo from the specified XML file
+     *
+     * @param connectionFilePath path to Database configuration file
+     */
+    public void addAnimalsFromDB(String connectionFilePath) {
+        ArrayList<String> connectionData = new ArrayList<>(3);
+        try {
+            Files.lines(Paths.get(connectionFilePath)).forEach(connectionData::add);
+            try(Connection connection = DriverManager.getConnection(connectionData.get(0),
+                                                                connectionData.get(1),
+                                                                connectionData.get(2))) {
+                LinkedList<Carnivore> carnivores = new LinkedList<>();
+                LinkedList<Herbivore> herbivores = new LinkedList<>();
+                try(Statement statement = connection.createStatement()) {
+                    statement.execute("SELECT * FROM zoo WHERE type = 'carnivore'");
+                    try(ResultSet result = statement.getResultSet()) {
+                        while (result.next())
+                            carnivores.add(new Carnivore(result.getString(3), result.getInt(4)));
+                    }
+                    statement.execute("SELECT * FROM zoo WHERE type = 'herbivore'");
+                    try(ResultSet result = statement.getResultSet()) {
+                        while (result.next())
+                            herbivores.add(new Herbivore(result.getString(3), result.getInt(4)));
+                    }
+                    if(!carnivores.isEmpty())
+                        zooAnimalSpecies.addAll(carnivores);
+                    if(!herbivores.isEmpty())
+                        zooAnimalSpecies.addAll(herbivores);
+                }
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    /**
      * Method for handling user actions with the specified type of animals
      *
      * @param event event to do a certain actions with animals
      * @param animalType type of animals for event
      */
     public void performAction(Events event, AnimalType animalType) {
-        updateAllSpeciesCurrentStates();
         switch (animalType) {
             case CARNIVORE:
                 for(AnimalSpecies species : zooAnimalSpecies) {
