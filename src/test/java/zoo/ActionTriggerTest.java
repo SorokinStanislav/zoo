@@ -19,7 +19,7 @@ public class ActionTriggerTest {
 
         zoo = new Zoo();
         String filePath = ZooTest.class.getClassLoader().getResource("zooAnimals.json").getPath();
-        zoo.addAnimals(filePath);
+        zoo.addAnimals(filePath, Formats.JSON);
         trigger = new ActionTrigger(zoo);
     }
 
@@ -75,6 +75,22 @@ public class ActionTriggerTest {
     void setThunder() {
         trigger.setThunder();
         assertEquals(zoo.getAllHerbivoreState(), AnimalState.MAKE_NOISE);
+        assertEquals(zoo.getAllCarnivoreState(), AnimalState.MAKE_NOISE);
+    }
+
+    //new
+    @Test
+    void setDrinking() {
+        trigger.feedAnimals(carnivore);
+        assertEquals(zoo.getAllCarnivoreState(), AnimalState.CALM);
+        trigger.feedAnimals(herbivore);
+        assertEquals(zoo.getAllHerbivoreState(), AnimalState.CALM);
+    }
+
+    //new
+    @Test
+    void setRain() {
+        trigger.setRain();
         assertEquals(zoo.getAllCarnivoreState(), AnimalState.MAKE_NOISE);
     }
 }

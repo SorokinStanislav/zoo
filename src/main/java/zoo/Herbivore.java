@@ -3,6 +3,16 @@ package zoo;
  * Class for describing a species of herbivore animal
  */
 public class Herbivore extends AnimalSpecies {
+    /**
+     * This constructors was created to work with databases
+     */
+    public Herbivore(){
+
+    }
+
+    public Herbivore(String name, int amount){
+        super(name, amount);
+    }
 
     /**
      * Method for updating current species state, according to zoo information about herbivore type
@@ -40,6 +50,18 @@ public class Herbivore extends AnimalSpecies {
         printDescription();
     }
 
+    /**
+     * * Method for "species drinking" event
+     * Changes state of species to CALM
+     * Changes zoo info about state of a herbivore type
+     * Prints species info
+     */
+    @Override
+    public void drinking() {
+        currentState = AnimalState.CALM;
+        Zoo.setAllHerbivoreState(AnimalState.CALM);
+        printDescription();
+    }
     /**
      * Method for "night time" event
      * Changes state of species to SLEEP if no one is making noises
@@ -93,6 +115,19 @@ public class Herbivore extends AnimalSpecies {
         setCurrentState(AnimalState.MAKE_NOISE);
         Zoo.setAllHerbivoreState(AnimalState.MAKE_NOISE);
         Zoo.setAllCarnivoreState(AnimalState.MAKE_NOISE);
+        printDescription();
+    }
+
+    /**
+     * Methodology for "rain" event
+     * Changes state only of carnivore species
+     * Doesn't changes state of herbivore species anyway
+     * Prints species info
+     */
+    @Override
+    public void rain() {
+        setCurrentState(AnimalState.CALM);
+        Zoo.setAllHerbivoreState(AnimalState.CALM);
         printDescription();
     }
 }
